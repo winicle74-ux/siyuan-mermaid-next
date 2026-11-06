@@ -1,0 +1,44 @@
+/* siyuan-mermaid-next — 插件样式
+ *
+ * 说明：Mermaid 图本身的样式全部来自渲染出的 SVG 内部 <style>，
+ * 这里只负责插件自己的设置面板与诊断弹窗。
+ */
+
+/* 设置面板里的「引擎状态」文字 */
+.siyuan-mermaid-next__engine {
+    color: var(--b3-theme-on-surface);
+    font-size: var(--b3-font-size);
+}
+
+.siyuan-mermaid-next__engine[data-status="ready"] {
+    color: var(--b3-theme-primary);
+}
+
+.siyuan-mermaid-next__engine[data-status="failed"] {
+    color: var(--b3-theme-error);
+}
+
+/* 设置面板里并排的两个按钮 */
+.siyuan-mermaid-next__actions {
+    gap: 8px;
+    align-items: center;
+}
+
+/* 诊断弹窗里的 JSON */
+.siyuan-mermaid-next__diag {
+    margin: 0;
+    padding: 8px 12px;
+    font-family: var(--b3-font-family-code);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--b3-theme-surface);
+    border-radius: var(--b3-border-radius);
+    user-select: text;
+}
+
+/* 下拉框宽度与思源其它设置项保持一致 */
+.siyuan-mermaid-next__select {
+    min-width: 200px;
+}

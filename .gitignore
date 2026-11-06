@@ -1,2 +1,6 @@
+# ignore build output; the release asset is package.zip built by tools/build-package-zip.py
 package.zip
 *.log
+.DS_Store
+Thumbs.db
+node_modules/

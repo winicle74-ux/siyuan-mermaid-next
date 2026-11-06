@@ -1,0 +1,37 @@
+{
+  "name": "siyuan-mermaid-next",
+  "author": "winicle74-ux",
+  "url": "https://github.com/winicle74-ux/siyuan-mermaid-next",
+  "version": "1.0.0",
+  "minAppVersion": "3.8.0",
+  "kernels": [
+    "all"
+  ],
+  "backends": [
+    "all"
+  ],
+  "frontends": [
+    "all"
+  ],
+  "displayName": {
+    "default": "Mermaid Next Renderer",
+    "zh-CN": "Mermaid 12 渲染增强"
+  },
+  "description": {
+    "default": "Replace SiYuan's built-in Mermaid 11.16.1 with the official latest Mermaid 12.3.0. Diagrams keep rendering inline in documents through SiYuan's native pipeline, so editing, reload, fold-deferred rendering and error messages all keep working.",
+    "zh-CN": "用 Mermaid 官方最新版 12.3.0 替换思源内置的 11.16.1。仍走思源原生渲染流程，代码块在文档中直接渲染为图形，编辑、刷新按钮、折叠延迟渲染、语法报错提示行为与原生一致，只是引擎换成了新版。"
+  },
+  "readme": {
+    "default": "README.en.md",
+    "zh-CN": "README.md"
+  },
+  "icon": "icon.png",
+  "preview": "preview.png",
+  "keywords": [
+    "siyuan",
+    "mermaid",
+    "diagram",
+    "render",
+    "flowchart"
+  ]
+}
