@@ -20,6 +20,8 @@
 const siyuan = require("siyuan");
 
 const PLUGIN_NAME = "siyuan-mermaid-next";
+/** 插件自身版本，与 plugin.json 的 version 保持一致（集市更新时必须同步递增） */
+const PLUGIN_VERSION = "1.0.1";
 const ENGINE_VERSION = "12.3.0";
 
 /** 原生注入器使用的脚本 id —— 必须占用它才能阻断内置 11.16.1 */
@@ -803,6 +805,7 @@ class MermaidNextPlugin extends siyuan.Plugin {
             window.__siyuanMermaidNext = {
                 plugin: this,
                 engine: this.engine,
+                pluginVersion: PLUGIN_VERSION,
                 version: ENGINE_VERSION,
                 rerenderAll: () => this.rerenderNow(),
                 report: () => this.engine.report(),
@@ -1190,6 +1193,7 @@ class MermaidNextPlugin extends siyuan.Plugin {
         const report = engine ? engine.report() : { status: "disabled" };
         const diag = {
             plugin: PLUGIN_NAME,
+            pluginVersion: PLUGIN_VERSION,
             engineVersion: ENGINE_VERSION,
             statusText: this.engineStatusText(),
             nativeMermaidScript: Array.from(document.querySelectorAll("script[id]"))
