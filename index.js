@@ -120,6 +120,105 @@ function notice(msg, type) {
 }
 
 /* ------------------------------------------------------------------ */
+/* 老内核 / 老 WebView 兼容层                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Mermaid 12 用了一些比较新的平台 API。实测（tools/probe-oldapi2.mjs）：
+ *   - pie / radar 两个图类型在 render 时直接调用 structuredClone，
+ *     缺失时报 "structuredClone is not a function"；
+ *   - 其余 22 种图类型在缺失 structuredClone / Object.groupBy /
+ *     URL.parse / AbortSignal.any / Promise.withResolvers 时仍能渲染。
+ *
+ * 思源自己是到 3.8.9 才加 app/src/protyle/util/browserCompat.ts，
+ * 在缺少这些 API 时才去拉 /stage/protyle/js/webview-compat.js 兜底。
+ * 也就是说：3.8.9 之前的内核 + 老 Android WebView / 老 iOS Safari
+ * （Chrome < 98、Safari < 15.4 一类）上，饼图和雷达图会直接报错。
+ *
+ * 这里只补「缺了就会真的崩」的那几个，纯增量、不覆盖浏览器已有实现：
+ * 归一化用 structuredClone 的首个语义（失败即抛 DataCloneError），
+ * 避免拖进来一个行为不一致的假实现。
+ */
+const installPlatformShims = () => {
+    const applied = [];
+
+    if (typeof globalThis.structuredClone !== "function") {
+        const clone = (value, seen) => {
+            if (value === null || typeof value !== "object") return value;
+            if (typeof value === "function") throw new DOMException("function is not cloneable", "DataCloneError");
+            const map = seen || new Map();
+            if (map.has(value)) return map.get(value);
+            if (value instanceof Date) return new Date(value.getTime());
+            if (value instanceof RegExp) return new RegExp(value.source, value.flags);
+            if (value instanceof ArrayBuffer) return value.slice(0);
+            if (ArrayBuffer.isView(value)) {
+                return new value.constructor(value.buffer.slice(0), value.byteOffset, value.length);
+            }
+            if (value instanceof Map) {
+                const out = new Map();
+                map.set(value, out);
+                value.forEach((v, k) => out.set(clone(k, map), clone(v, map)));
+                return out;
+            }
+            if (value instanceof Set) {
+                const out = new Set();
+                map.set(value, out);
+                value.forEach((v) => out.add(clone(v, map)));
+                return out;
+            }
+            if (Array.isArray(value)) {
+                const out = [];
+                map.set(value, out);
+                value.forEach((v, i) => (out[i] = clone(v, map)));
+                return out;
+            }
+            const out = Object.create(Object.getPrototypeOf(value));
+            map.set(value, out);
+            Object.keys(value).forEach((k) => (out[k] = clone(value[k], map)));
+            return out;
+        };
+        try {
+            Object.defineProperty(globalThis, "structuredClone", {
+                configurable: true,
+                writable: true,
+                value: function structuredClone(value) {
+                    return clone(value);
+                },
+            });
+            applied.push("structuredClone");
+        } catch (e) {
+            /* 只读环境，放弃这一项 */
+        }
+    }
+
+    // mermaid 12 的 syntax 校验里用了 Object.groupBy（仅在校验重复产生式时触发，
+    // 正常渲染不会走到，但补上更稳妥，成本几乎为零）。
+    if (typeof Object.groupBy !== "function") {
+        try {
+            Object.defineProperty(Object, "groupBy", {
+                configurable: true,
+                writable: true,
+                value: function groupBy(items, callback) {
+                    const out = Object.create(null);
+                    if (items == null) return out;
+                    let i = 0;
+                    for (const item of items) {
+                        const key = callback(item, i++);
+                        (out[key] || (out[key] = [])).push(item);
+                    }
+                    return out;
+                },
+            });
+            applied.push("Object.groupBy");
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
+    return applied;
+};
+
+/* ------------------------------------------------------------------ */
 /* engine                                                             */
 /* ------------------------------------------------------------------ */
 
@@ -202,6 +301,12 @@ class MermaidNextEngine {
 
     install() {
         if (this.status === "ready" || this.status === "loading") return this;
+
+        // 0) 老内核 / 老 WebView：先补齐 Mermaid 12 会真的用到的平台 API
+        this.appliedShims = installPlatformShims();
+        if (this.appliedShims.length > 0) {
+            console.log(LOG_PREFIX, "已补齐平台 API:", this.appliedShims.join(", "));
+        }
 
         this.placeholder = this._buildPlaceholder();
         this.ready = new Promise((resolve, reject) => {

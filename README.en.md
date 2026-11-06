@@ -116,6 +116,12 @@ of the box:
 ## Compatibility
 
 - SiYuan `3.8.0+` (`minAppVersion: 3.8.0`); works on desktop, mobile, and in the browser.
+- **OS-independent:** the plugin runs entirely in the SiYuan front end (Electron, mobile WebView, or
+  browser) and touches no native modules, so Windows, macOS, Linux, Android and iOS all run the same JS.
+- **Old WebViews are covered:** Mermaid 12 calls `structuredClone` when rendering pie and radar charts,
+  and SiYuan only started shipping `webview-compat.js` in 3.8.9. This plugin installs its own
+  `structuredClone` and `Object.groupBy` shims before the engine loads, so pie/radar charts do not fail
+  with `structuredClone is not a function` on older engines (Chrome < 98, Safari < 15.4).
 - **May conflict** with third-party Mermaid plugins such as "Mermaid visual two-way editing" — they
   modify the same rendering chain, so only one should be enabled at a time.
 - On SiYuan versions that still bundle 11.16.1 nothing is affected; if the plugin fails to load it falls

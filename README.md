@@ -88,6 +88,12 @@
 ## 兼容性
 
 - 思源 `3.8.0+`（`minAppVersion: 3.8.0`），桌面端 / 移动端 / 浏览器端均可
+- **操作系统无关**：插件本身只跑在思源前端（Electron / 移动端 WebView / 浏览器），
+  不碰任何原生模块，所以 Windows、macOS、Linux、Android、iOS 都是同一份 JS
+- **老 WebView 已自带兜底**：Mermaid 12 的饼图 / 雷达图在渲染时会调用 `structuredClone`，
+  思源直到 3.8.9 才加 `webview-compat.js` 补这些平台 API。本插件在引擎安装前会自己补
+  `structuredClone` 与 `Object.groupBy`，所以在 Chrome < 98 / Safari < 15.4 这类
+  老内核上饼图、雷达图也不会报 `structuredClone is not a function`
 - 与「Mermaid 双向可视化编辑」等第三方 Mermaid 插件**可能冲突**——它们也在改同一批渲染链路，
   建议只启用一个
 - 内置引擎仍是 11.16.1 的思源版本不受影响；插件加载失败时会自动回退到原生渲染并提示
