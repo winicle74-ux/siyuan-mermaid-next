@@ -56,15 +56,28 @@ Measured on a real SiYuan 3.8.6-alpha.9 install:
 
 ## Installation
 
-Copy the whole `siyuan-mermaid-next` directory into your workspace's plugin folder:
+This plugin is distributed through GitHub Releases. Pick either route.
+
+**Option 1 — download `package.zip` from the Release (recommended)**
+
+1. Open https://github.com/winicle74-ux/siyuan-mermaid-next/releases/latest
+2. Download `package.zip`
+3. Unzip it and move the resulting `siyuan-mermaid-next` directory into your workspace's plugin folder:
 
 ```
 <workspace>/data/plugins/siyuan-mermaid-next/
 ```
 
-Then enable it under **SiYuan → Settings → Marketplace → Downloaded**, or restart SiYuan. (Optionally,
-before enabling you can confirm that `data/storage/petal/petals.json` contains an entry with
-`"name": "siyuan-mermaid-next"`.)
+4. Restart SiYuan and enable it under **Settings → Marketplace → Downloaded**
+
+**Option 2 — copy the source tree**
+
+Copy every file from the root of this repository (`plugin.json`, `index.js`, `index.css`, `i18n/`,
+`vendor/`, …) into `<workspace>/data/plugins/siyuan-mermaid-next/` and restart SiYuan.
+
+> Once enabled, `data/storage/petal/petals.json` should contain an entry with
+> `"name": "siyuan-mermaid-next"` and `"enabled": true`. The directory name must be exactly
+> `siyuan-mermaid-next`, matching the `name` field in `plugin.json`.
 
 ## Settings
 
@@ -124,8 +137,34 @@ of the box:
   with `structuredClone is not a function` on older engines (Chrome < 98, Safari < 15.4).
 - **May conflict** with third-party Mermaid plugins such as "Mermaid visual two-way editing" — they
   modify the same rendering chain, so only one should be enabled at a time.
-- On SiYuan versions that still bundle 11.16.1 nothing is affected; if the plugin fails to load it falls
-  back to native rendering automatically and shows a notice.
+- If the plugin fails to load it falls back to native rendering automatically and shows a notice.
+- **Verified on 3.8.9** (where native 12.2.0 hands over to the plugin): 21 documents / 31 blocks all
+  rendered, desktop and mobile (430x932) both pass, and toggling the switch rolls back to 12.2.0 instantly.
+- SiYuan 3.8.9 switched its native call to **three-argument `mermaid.render(id, text, container)`**
+  (measuring off-screen before mounting). This plugin's render proxy forwards both the two- and
+  three-argument forms, so old and new kernels both work.
+
+### A note on SiYuan's own version
+
+This plugin was written because SiYuan's bundled Mermaid was badly out of date. SiYuan has since caught up:
+
+| SiYuan version | Bundled Mermaid |
+| --- | --- |
+| 3.8.6 and earlier | 11.16.1 |
+| 3.8.7 | 12.1.0 |
+| 3.8.8 / 3.8.9 | 12.2.0 |
+
+So from **3.8.8 onward**, the value here is no longer the version number. Between 12.2.0 and 12.3.0 the
+difference is only BPMN shapes, extra edge markers, the flowchart `step` animation, a swimlane fix, and
+the DOMPurify 3.4.17 security bump. What remains valuable is that:
+
+- SiYuan's built-in Mermaid config is **entirely hard-coded** — `theme`, `htmlLabels`, `useMaxWidth`,
+  `showSequenceNumbers` and the gantt padding are all fixed, and `conf.json` exposes no Mermaid rendering
+  settings at all. This plugin turns them into settings.
+- Theme, look (`classic` / `handDrawn` / `neo`), font size, HTML labels and auto-width become adjustable.
+- Disabling it rolls straight back to the bundled engine without touching any SiYuan file.
+
+If you are on SiYuan 3.8.8+ and do not care about those knobs, you do not need this plugin.
 
 ## Uninstalling and rollback
 

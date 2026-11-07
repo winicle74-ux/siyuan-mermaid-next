@@ -21,7 +21,7 @@ const siyuan = require("siyuan");
 
 const PLUGIN_NAME = "siyuan-mermaid-next";
 /** 插件自身版本，与 plugin.json 的 version 保持一致（集市更新时必须同步递增） */
-const PLUGIN_VERSION = "1.0.1";
+const PLUGIN_VERSION = "1.0.2";
 const ENGINE_VERSION = "12.3.0";
 
 /** 原生注入器使用的脚本 id —— 必须占用它才能阻断内置 11.16.1 */

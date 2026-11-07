@@ -38,14 +38,27 @@
 
 ## 装法
 
-把整个 `siyuan-mermaid-next` 目录放到工作空间的插件目录：
+本插件通过 GitHub Release 分发，两种装法任选其一。
+
+**方式一：从 Release 下载 `package.zip`（推荐）**
+
+1. 打开 https://github.com/winicle74-ux/siyuan-mermaid-next/releases/latest
+2. 下载 `package.zip`
+3. 解压得到 `siyuan-mermaid-next` 目录，整个放进工作空间的插件目录：
 
 ```
 <工作空间>/data/plugins/siyuan-mermaid-next/
 ```
 
-然后在 思源 → 设置 → 集市 → 已下载 里启用，或重启思源。
-（也可以在启用前确认 `data/storage/petal/petals.json` 里有 `"name": "siyuan-mermaid-next"` 条目。）
+4. 重启思源，在 **设置 → 集市 → 已下载** 里启用它
+
+**方式二：直接放源码目录**
+
+把本仓库根目录的所有文件（`plugin.json`、`index.js`、`index.css`、`i18n/`、`vendor/` 等）复制到
+`<工作空间>/data/plugins/siyuan-mermaid-next/`，重启思源即可。
+
+> 启用后可以确认 `data/storage/petal/petals.json` 里有 `"name": "siyuan-mermaid-next"` 且 `"enabled": true`。
+> 目录名必须是 `siyuan-mermaid-next`，要和 `plugin.json` 的 `name` 一致。
 
 ## 设置项
 
@@ -96,7 +109,31 @@
   老内核上饼图、雷达图也不会报 `structuredClone is not a function`
 - 与「Mermaid 双向可视化编辑」等第三方 Mermaid 插件**可能冲突**——它们也在改同一批渲染链路，
   建议只启用一个
-- 内置引擎仍是 11.16.1 的思源版本不受影响；插件加载失败时会自动回退到原生渲染并提示
+- 插件加载失败时会自动回退到原生渲染并提示
+- **已在 3.8.9 上实测通过**（原生 12.2.0 会让出位置给本插件）：21 篇文档 / 31 个块全部渲染成功，
+  桌面端与移动端（430×932 窄屏）均 PASS，关闭开关能立即回滚到 12.2.0
+- 3.8.9 的原生渲染改用了 **3 参 `mermaid.render(id, text, container)`**（在屏幕外容器里测量尺寸），
+  再挂回块里；本插件的渲染代理对 2 参 / 3 参两种调用都做了转发，因此新旧内核都能用
+
+### 关于思源自身版本
+
+这个插件最初是为「思源内置 Mermaid 太旧」而写的。需要注意思源已经跟上来了：
+
+| 思源版本 | 内置 Mermaid |
+| --- | --- |
+| 3.8.6 及更早 | 11.16.1 |
+| 3.8.7 | 12.1.0 |
+| 3.8.8 / 3.8.9 | 12.2.0 |
+
+所以从 **3.8.8 起**，本插件的价值**不在于版本更新**了（12.2.0 与 12.3.0 的差距只有 BPMN 形状、
+边箭头样式、`step` 动画、swimlane 修复、DOMPurify 3.4.17 安全修复这些），而在于：
+
+- 思源原生的 mermaid 配置是**完全写死的**（`theme`、`htmlLabels`、`useMaxWidth`、`showSequenceNumbers`、
+  gantt padding 全部硬编码，`conf.json` 里没有任何 mermaid 渲染配置项），本插件把这些暴露成设置项
+- 主题 / 外观风格（`classic` / `handDrawn` / `neo`）/ 字号 / HTML 标签 / 宽度自适应可调
+- 关闭后立即回滚到思源内置引擎，不改任何思源文件
+
+如果你用的思源已经 ≥ 3.8.8 且不在意这些可配置项，可以不用装。
 
 ## 卸载回滚
 
